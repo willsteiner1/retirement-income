@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #213547;
+  background-color: #f8fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Custom utility classes for the visualization */
+@layer components {
+  .account-block {
+    @apply rounded-lg border-2 border-dashed transition-all duration-200;
+  }
+
+  .account-block:hover {
+    @apply border-solid shadow-md;
+  }
+
+  .withdrawal-slice {
+    @apply border-2 border-blue-600 bg-transparent;
+  }
+
+  .bracket-band {
+    @apply transition-all duration-200;
+  }
+
+  .bracket-band:hover {
+    @apply opacity-80;
+  }
+
+  .tooltip-container {
+    @apply absolute z-50 bg-gray-900 text-white text-sm rounded-lg px-3 py-2 shadow-lg;
+    @apply max-w-xs;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2 bg-blue-600 text-white rounded-lg font-medium;
+    @apply hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium;
+    @apply hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2;
+    @apply transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+
+  .card-info {
+    @apply bg-blue-50 border-blue-200;
+  }
+
+  .card-success {
+    @apply bg-emerald-50 border-emerald-200;
+  }
+
+  .card-warning {
+    @apply bg-amber-50 border-amber-200;
+  }
+
+  .panel {
+    @apply bg-gray-50 rounded-xl border border-gray-200 p-4;
+  }
+
+  .btn-tertiary {
+    @apply px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg;
+    @apply hover:bg-gray-50 hover:text-gray-900 transition-colors;
+  }
+
+  /* Form control styling */
+  input[type="radio"],
+  input[type="checkbox"] {
+    @apply w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer;
+  }
+
+  input[type="checkbox"] {
+    @apply rounded;
+  }
+
+  /* Smooth transition utility */
+  .transition-smooth {
+    @apply transition-all duration-200 ease-in-out;
+  }
+}
