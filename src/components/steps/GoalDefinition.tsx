@@ -258,28 +258,32 @@ export function GoalDefinition() {
               ))}
             </div>
             {stateTaxMethod === 'rate' && (
-              <div className="relative">
-                <input
-                  type="text"
-                  value={stateTaxRate}
-                  onChange={(e) => setStateTaxRate(e.target.value.replace(/[^0-9.]/g, ''))}
-                  className="input-field pr-8"
-                  placeholder="5.5"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+              <div>
+                <div className="relative max-w-32">
+                  <input
+                    type="text"
+                    value={stateTaxRate}
+                    onChange={(e) => setStateTaxRate(e.target.value.replace(/[^0-9.]/g, ''))}
+                    className="input-field pr-8"
+                    placeholder="5.5"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                </div>
                 <p className="text-xs text-gray-500 mt-1">Applied to federal taxable income</p>
               </div>
             )}
             {stateTaxMethod === 'fixed' && (
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="text"
-                  value={stateTaxFixed}
-                  onChange={(e) => setStateTaxFixed(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="input-field pl-8"
-                  placeholder="5000"
-                />
+              <div>
+                <div className="relative max-w-40">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="text"
+                    value={stateTaxFixed}
+                    onChange={(e) => setStateTaxFixed(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="input-field pl-8"
+                    placeholder="5000"
+                  />
+                </div>
                 <p className="text-xs text-gray-500 mt-1">Your estimated state tax liability</p>
               </div>
             )}
