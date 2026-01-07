@@ -39,8 +39,8 @@ const TAX_FREE_COLOR = '#86EFAC';  // Bright green
 const DEDUCTION_COLOR = '#E5E7EB'; // Gray
 
 export function TaxFlowChart({ breakdown, strategy }: TaxFlowChartProps) {
-  const maxChartHeight = 300;
-  const barWidth = 80;
+  const maxChartHeight = 280;
+  const barWidth = 70;
 
   // Total income for this scenario
   const totalIncome = breakdown.grossIncome;
@@ -91,10 +91,10 @@ export function TaxFlowChart({ breakdown, strategy }: TaxFlowChartProps) {
   const afterTax = breakdown.afterTaxIncome;
 
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
-      <h3 className="font-semibold text-gray-700 mb-6">This Year</h3>
+    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 sm:p-6">
+      <h3 className="font-semibold text-gray-700 mb-4 sm:mb-6">This Year</h3>
 
-      <div className="flex items-end justify-around" style={{ height: maxChartHeight + 80 }}>
+      <div className="flex items-end justify-around gap-2 sm:gap-4 overflow-x-auto pb-2" style={{ minHeight: maxChartHeight + 80 }}>
 
         {/* COLUMN 1: Income Sources - Stacked Bar (height grows with income) */}
         <div className="flex flex-col items-center justify-end" style={{ height: maxChartHeight }}>
@@ -363,7 +363,7 @@ export function TaxFlowChart({ breakdown, strategy }: TaxFlowChartProps) {
       </div>
 
       {/* Summary Stats Row */}
-      <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-3 gap-4 text-center">
+      <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
         <div>
           <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalIncome)}</p>
           <p className="text-xs text-gray-500">Total income</p>
@@ -385,7 +385,7 @@ export function TaxFlowChart({ breakdown, strategy }: TaxFlowChartProps) {
 
       {/* Effective Rate Breakdown */}
       <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
           <Tooltip
             content={
               <HoverCard

@@ -117,16 +117,16 @@ export function IncomePlanner() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Plan Your Income</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Plan Your Income</h2>
+          <p className="mt-1 text-gray-600 text-sm sm:text-base">
             Adjust withdrawals and see tax impact in real-time.
           </p>
         </div>
 
         {/* Goal Status Badges */}
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-start sm:items-end gap-2">
           <span className="text-sm text-gray-500">
             Goal: {formatCurrency(goal.amount)} {goal.targetType === 'afterTax' ? 'after-tax' : 'gross'}
           </span>
@@ -151,9 +151,9 @@ export function IncomePlanner() {
       </div>
 
       {/* Main Layout: Controls + Visualization */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Left: Withdrawal Controls */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="md:col-span-5 lg:col-span-4 space-y-4">
           <div className="card">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold text-gray-900">Withdrawals</h3>
@@ -285,7 +285,7 @@ export function IncomePlanner() {
           {/* Quick Stats Card */}
           {breakdown && (
             <div className="card">
-              <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
                 <div>
                   <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(breakdown.afterTaxIncome)}
@@ -300,7 +300,7 @@ export function IncomePlanner() {
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 text-sm">
+              <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Gross income</span>
                   <span>{formatCurrency(breakdown.grossIncome)}</span>
@@ -331,7 +331,7 @@ export function IncomePlanner() {
         </div>
 
         {/* Right: Visualization */}
-        <div className="lg:col-span-8">
+        <div className="md:col-span-7 lg:col-span-8">
           {breakdown && (
             <TaxFlowChart breakdown={breakdown} strategy={localStrategy} />
           )}

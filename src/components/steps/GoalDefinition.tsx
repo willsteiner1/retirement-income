@@ -161,7 +161,7 @@ export function GoalDefinition() {
           </div>
 
           {/* Ages */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Your Age
@@ -300,7 +300,7 @@ export function GoalDefinition() {
             <label className="block text-sm font-medium text-gray-700">
               Traditional 401(k) / IRA
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Current Balance</label>
                 <div className="relative">
@@ -336,7 +336,7 @@ export function GoalDefinition() {
             <label className="block text-sm font-medium text-gray-700">
               Taxable Brokerage Account
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Total Balance</label>
                 <div className="relative">
@@ -406,7 +406,7 @@ export function GoalDefinition() {
 
             return totalPortfolio > 0 ? (
               <div className={`p-4 rounded-lg border ${exceedsSustainable ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
-                <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                   <div>
                     <p className="text-xs text-gray-500">Portfolio</p>
                     <p className="text-lg font-bold text-gray-900">{formatCurrency(totalPortfolio)}</p>
@@ -466,7 +466,7 @@ export function GoalDefinition() {
             <label className="block text-sm font-medium text-gray-700">
               Pension Income (Optional)
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Annual Benefit</label>
                 <div className="relative">

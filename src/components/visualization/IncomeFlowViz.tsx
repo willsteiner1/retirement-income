@@ -87,7 +87,7 @@ export function IncomeFlowViz({ breakdown, strategy }: IncomeFlowVizProps) {
     <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
       <h3 className="font-semibold text-gray-700 mb-4">This Year</h3>
 
-      <div className="flex items-end justify-between gap-2" style={{ height: chartHeight + 60 }}>
+      <div className="flex items-end justify-between gap-2 overflow-x-auto pb-2" style={{ minHeight: chartHeight + 60 }}>
         {/* Income Sources */}
         <div className="flex-1">
           <p className="text-xs text-gray-500 mb-2 text-center">Income Sources</p>
@@ -248,7 +248,7 @@ export function IncomeFlowViz({ breakdown, strategy }: IncomeFlowVizProps) {
       </div>
 
       {/* Summary Row */}
-      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-4 gap-2 text-center">
+      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
         <div>
           <p className="text-xs text-gray-500">Total income</p>
           <p className="text-lg font-bold">{formatCurrency(breakdown.grossIncome)}</p>

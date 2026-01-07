@@ -58,9 +58,9 @@ export function ProjectionPanel({ portfolio, goal, currentStrategy, currentBreak
       {/* Collapsible Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+        className="w-full px-4 sm:px-6 py-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <svg
             className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
@@ -87,7 +87,7 @@ export function ProjectionPanel({ portfolio, goal, currentStrategy, currentBreak
 
       {/* Expanded Content */}
       {isExpanded && projection && (
-        <div className="px-6 pb-6 border-t border-gray-200">
+        <div className="px-4 sm:px-6 pb-6 border-t border-gray-200">
           {/* Assumptions Bar */}
           <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
             {isEditingAssumptions ? (
@@ -135,16 +135,16 @@ export function ProjectionPanel({ portfolio, goal, currentStrategy, currentBreak
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
                   <span className="text-gray-500">Assumptions:</span>
                   <span className="font-medium">{(assumptions.growthRate * 100).toFixed(1)}% growth</span>
                   <span className="font-medium">{(assumptions.inflationRate * 100).toFixed(1)}% inflation</span>
-                  <span className="text-gray-400 text-xs">(applied annually after withdrawals)</span>
+                  <span className="text-gray-400 text-xs hidden sm:inline">(applied annually after withdrawals)</span>
                 </div>
                 <button
                   onClick={handleStartEditing}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-blue-600 hover:text-blue-800 self-start sm:self-auto"
                 >
                   Edit
                 </button>
@@ -242,7 +242,7 @@ export function ProjectionPanel({ portfolio, goal, currentStrategy, currentBreak
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-4 gap-4 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-center">
               <div className="bg-white rounded-lg p-3 border border-gray-200">
                 <p className="text-xl font-bold text-gray-900">
                   {formatCurrency(projection.totalTaxesPaid)}

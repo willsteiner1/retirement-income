@@ -62,9 +62,9 @@ export function ClientNarrative() {
           </div>
 
           {/* Summary Box */}
-          <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="mt-8 p-4 sm:p-6 bg-blue-50 rounded-xl border border-blue-200">
             <h3 className="font-semibold text-gray-900 mb-4">At a Glance</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Total Income</p>
                 <p className="text-2xl font-bold">{formatCurrency(taxBreakdown.grossIncome)}</p>
@@ -101,10 +101,10 @@ export function ClientNarrative() {
   // Advisor view - full controls and export options
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Client Summary</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Client Summary</h2>
+          <p className="mt-1 text-gray-600 text-sm sm:text-base">
             A clear, jargon-free explanation of the plan for your client.
           </p>
         </div>
@@ -138,9 +138,9 @@ export function ClientNarrative() {
         </div>
 
         {/* Summary Box */}
-        <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+        <div className="mt-8 p-4 sm:p-6 bg-blue-50 rounded-xl border border-blue-200">
           <h3 className="font-semibold text-gray-900 mb-4">At a Glance</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-gray-500">Total Income</p>
               <p className="text-xl font-bold">{formatCurrency(taxBreakdown.grossIncome)}</p>
