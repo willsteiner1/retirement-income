@@ -162,6 +162,32 @@ export type WorkflowStep = 'goal' | 'plan' | 'narrative';
 
 export type ViewMode = 'advisor' | 'client';
 
+// Goal form draft (string values for form persistence)
+export interface GoalFormDraft {
+  targetAmount: string;
+  targetType: 'afterTax' | 'gross';
+  primaryAge: string;
+  spouseAge: string;
+  planningHorizon: string;
+  filingStatus: FilingStatus;
+  traditionalBalance: string;
+  taxableBalance: string;
+  taxableUnrealizedGains: string;
+  rothBalance: string;
+  ssEnabled: boolean;
+  ssStartAge: string;
+  ssAnnualBenefit: string;
+  spouseSsEnabled: boolean;
+  spouseSsStartAge: string;
+  spouseSsAnnualBenefit: string;
+  pensionEnabled: boolean;
+  pensionStartAge: string;
+  pensionAnnualBenefit: string;
+  stateTaxMethod: StateTaxMethod;
+  stateTaxRate: string;
+  stateTaxFixed: string;
+}
+
 // Main application state
 export interface AppState {
   currentStep: WorkflowStep;
@@ -170,6 +196,7 @@ export interface AppState {
   goal: IncomeGoal | null;
   strategy: WithdrawalStrategy | null;
   taxBreakdown: TaxBreakdown | null;
+  goalFormDraft: GoalFormDraft | null;
 }
 
 // Action types for reducer
@@ -180,6 +207,7 @@ export type AppAction =
   | { type: 'SET_GOAL'; goal: IncomeGoal }
   | { type: 'SET_STRATEGY'; strategy: WithdrawalStrategy }
   | { type: 'SET_TAX_BREAKDOWN'; breakdown: TaxBreakdown }
+  | { type: 'SET_GOAL_FORM_DRAFT'; draft: GoalFormDraft }
   | { type: 'RESET' };
 
 // ============================================

@@ -1,36 +1,94 @@
 import { useState } from 'react';
 import { usePlan } from '../../context/PlanContext';
-import type { FilingStatus, Portfolio, IncomeGoal, StateTaxMethod } from '../../types';
+import type { FilingStatus, Portfolio, IncomeGoal, StateTaxMethod, GoalFormDraft } from '../../types';
 import { FILING_STATUS_LABELS, STANDARD_DEDUCTION } from '../../constants/tax2026';
 import { formatCurrency } from '../../utils/formatters';
 
-export function GoalDefinition() {
-  const { setGoal, setPortfolio, setStep } = usePlan();
+// Default form values
+const defaultFormValues: GoalFormDraft = {
+  targetAmount: '150000',
+  targetType: 'afterTax',
+  primaryAge: '65',
+  spouseAge: '63',
+  planningHorizon: '95',
+  filingStatus: 'mfj',
+  traditionalBalance: '800000',
+  taxableBalance: '500000',
+  taxableUnrealizedGains: '200000',
+  rothBalance: '200000',
+  ssEnabled: true,
+  ssStartAge: '67',
+  ssAnnualBenefit: '36000',
+  spouseSsEnabled: false,
+  spouseSsStartAge: '67',
+  spouseSsAnnualBenefit: '',
+  pensionEnabled: false,
+  pensionStartAge: '65',
+  pensionAnnualBenefit: '',
+  stateTaxMethod: 'none',
+  stateTaxRate: '',
+  stateTaxFixed: '',
+};
 
-  // Form state
-  const [targetType, setTargetType] = useState<'afterTax' | 'gross'>('afterTax');
-  const [targetAmount, setTargetAmount] = useState<string>('150000');
-  const [filingStatus, setFilingStatus] = useState<FilingStatus>('mfj');
-  const [primaryAge, setPrimaryAge] = useState<string>('65');
-  const [spouseAge, setSpouseAge] = useState<string>('63');
+export function GoalDefinition() {
+  const { state, setGoal, setPortfolio, setStep, setGoalFormDraft, reset } = usePlan();
+  const draft = state.goalFormDraft;
+
+  // Form state - initialize from draft or defaults
+  const [targetType, setTargetType] = useState<'afterTax' | 'gross'>(draft?.targetType ?? defaultFormValues.targetType);
+  const [targetAmount, setTargetAmount] = useState<string>(draft?.targetAmount ?? defaultFormValues.targetAmount);
+  const [filingStatus, setFilingStatus] = useState<FilingStatus>(draft?.filingStatus ?? defaultFormValues.filingStatus);
+  const [primaryAge, setPrimaryAge] = useState<string>(draft?.primaryAge ?? defaultFormValues.primaryAge);
+  const [spouseAge, setSpouseAge] = useState<string>(draft?.spouseAge ?? defaultFormValues.spouseAge);
   const [useItemized, setUseItemized] = useState(false);
   const [itemizedAmount, setItemizedAmount] = useState<string>('');
-  const [stateTaxMethod, setStateTaxMethod] = useState<StateTaxMethod>('none');
-  const [stateTaxRate, setStateTaxRate] = useState<string>('');
-  const [stateTaxFixed, setStateTaxFixed] = useState<string>('');
-  const [planningHorizon, setPlanningHorizon] = useState<string>('95');
+  const [stateTaxMethod, setStateTaxMethod] = useState<StateTaxMethod>(draft?.stateTaxMethod ?? defaultFormValues.stateTaxMethod);
+  const [stateTaxRate, setStateTaxRate] = useState<string>(draft?.stateTaxRate ?? defaultFormValues.stateTaxRate);
+  const [stateTaxFixed, setStateTaxFixed] = useState<string>(draft?.stateTaxFixed ?? defaultFormValues.stateTaxFixed);
+  const [planningHorizon, setPlanningHorizon] = useState<string>(draft?.planningHorizon ?? defaultFormValues.planningHorizon);
 
   // Portfolio state
-  const [traditionalBalance, setTraditionalBalance] = useState<string>('800000');
+  const [traditionalBalance, setTraditionalBalance] = useState<string>(draft?.traditionalBalance ?? defaultFormValues.traditionalBalance);
   const [traditionalPriorYear, setTraditionalPriorYear] = useState<string>('');
-  const [taxableBalance, setTaxableBalance] = useState<string>('500000');
-  const [taxableBasis, setTaxableBasis] = useState<string>('300000');
-  const [rothBalance, setRothBalance] = useState<string>('200000');
-  const [ssAnnualBenefit, setSsAnnualBenefit] = useState<string>('36000');
-  const [pensionAnnualBenefit, setPensionAnnualBenefit] = useState<string>('');
+  const [taxableBalance, setTaxableBalance] = useState<string>(draft?.taxableBalance ?? defaultFormValues.taxableBalance);
+  const [taxableBasis, setTaxableBasis] = useState<string>(() => {
+    const balance = parseFloat(draft?.taxableBalance ?? defaultFormValues.taxableBalance) || 0;
+    const gains = parseFloat(draft?.taxableUnrealizedGains ?? defaultFormValues.taxableUnrealizedGains) || 0;
+    return String(balance - gains);
+  });
+  const [rothBalance, setRothBalance] = useState<string>(draft?.rothBalance ?? defaultFormValues.rothBalance);
+  const [ssAnnualBenefit, setSsAnnualBenefit] = useState<string>(draft?.ssAnnualBenefit ?? defaultFormValues.ssAnnualBenefit);
+  const [pensionAnnualBenefit, setPensionAnnualBenefit] = useState<string>(draft?.pensionAnnualBenefit ?? defaultFormValues.pensionAnnualBenefit);
   const [pensionCola, setPensionCola] = useState<string>('0');
 
   const handleContinue = () => {
+    // Save form draft for persistence
+    const formDraft: GoalFormDraft = {
+      targetAmount,
+      targetType,
+      primaryAge,
+      spouseAge,
+      planningHorizon,
+      filingStatus,
+      traditionalBalance,
+      taxableBalance,
+      taxableUnrealizedGains: String((parseFloat(taxableBalance) || 0) - (parseFloat(taxableBasis) || 0)),
+      rothBalance,
+      ssEnabled: !!ssAnnualBenefit,
+      ssStartAge: '67',
+      ssAnnualBenefit,
+      spouseSsEnabled: false,
+      spouseSsStartAge: '67',
+      spouseSsAnnualBenefit: '',
+      pensionEnabled: !!pensionAnnualBenefit,
+      pensionStartAge: '65',
+      pensionAnnualBenefit,
+      stateTaxMethod,
+      stateTaxRate,
+      stateTaxFixed,
+    };
+    setGoalFormDraft(formDraft);
+
     // Build portfolio
     const priorYearBal = traditionalPriorYear ? parseFloat(traditionalPriorYear) : undefined;
     const portfolio: Portfolio = {
@@ -78,6 +136,31 @@ export function GoalDefinition() {
     setPortfolio(portfolio);
     setGoal(goal);
     setStep('plan');
+  };
+
+  const handleReset = () => {
+    if (confirm('Reset all form values to defaults?')) {
+      reset();
+      // Reset local state to defaults
+      setTargetType(defaultFormValues.targetType);
+      setTargetAmount(defaultFormValues.targetAmount);
+      setFilingStatus(defaultFormValues.filingStatus);
+      setPrimaryAge(defaultFormValues.primaryAge);
+      setSpouseAge(defaultFormValues.spouseAge);
+      setStateTaxMethod(defaultFormValues.stateTaxMethod);
+      setStateTaxRate(defaultFormValues.stateTaxRate);
+      setStateTaxFixed(defaultFormValues.stateTaxFixed);
+      setPlanningHorizon(defaultFormValues.planningHorizon);
+      setTraditionalBalance(defaultFormValues.traditionalBalance);
+      setTaxableBalance(defaultFormValues.taxableBalance);
+      setTaxableBasis(String(
+        (parseFloat(defaultFormValues.taxableBalance) || 0) -
+        (parseFloat(defaultFormValues.taxableUnrealizedGains) || 0)
+      ));
+      setRothBalance(defaultFormValues.rothBalance);
+      setSsAnnualBenefit(defaultFormValues.ssAnnualBenefit);
+      setPensionAnnualBenefit(defaultFormValues.pensionAnnualBenefit);
+    }
   };
 
   const standardDeduction = STANDARD_DEDUCTION[filingStatus];
@@ -523,8 +606,11 @@ export function GoalDefinition() {
         </div>
       </div>
 
-      {/* Continue Button */}
-      <div className="flex justify-end">
+      {/* Action Buttons */}
+      <div className="flex justify-between">
+        <button onClick={handleReset} className="btn-secondary text-sm">
+          Reset to Defaults
+        </button>
         <button onClick={handleContinue} className="btn-primary">
           Continue to Strategy
         </button>

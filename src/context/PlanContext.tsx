@@ -7,7 +7,8 @@ import type {
   WithdrawalStrategy,
   TaxBreakdown,
   WorkflowStep,
-  ViewMode
+  ViewMode,
+  GoalFormDraft
 } from '../types';
 
 // Initial state
@@ -24,6 +25,7 @@ const initialState: AppState = {
   goal: null,
   strategy: null,
   taxBreakdown: null,
+  goalFormDraft: null,
 };
 
 // Reducer
@@ -41,6 +43,8 @@ function planReducer(state: AppState, action: AppAction): AppState {
       return { ...state, strategy: action.strategy };
     case 'SET_TAX_BREAKDOWN':
       return { ...state, taxBreakdown: action.breakdown };
+    case 'SET_GOAL_FORM_DRAFT':
+      return { ...state, goalFormDraft: action.draft };
     case 'RESET':
       return initialState;
     default:
@@ -59,6 +63,7 @@ interface PlanContextType {
   setGoal: (goal: IncomeGoal) => void;
   setStrategy: (strategy: WithdrawalStrategy) => void;
   setTaxBreakdown: (breakdown: TaxBreakdown) => void;
+  setGoalFormDraft: (draft: GoalFormDraft) => void;
   reset: () => void;
 }
 
@@ -78,6 +83,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     setGoal: (goal) => dispatch({ type: 'SET_GOAL', goal }),
     setStrategy: (strategy) => dispatch({ type: 'SET_STRATEGY', strategy }),
     setTaxBreakdown: (breakdown) => dispatch({ type: 'SET_TAX_BREAKDOWN', breakdown }),
+    setGoalFormDraft: (draft) => dispatch({ type: 'SET_GOAL_FORM_DRAFT', draft }),
     reset: () => dispatch({ type: 'RESET' }),
   };
 
