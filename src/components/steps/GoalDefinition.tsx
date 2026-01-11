@@ -403,13 +403,23 @@ export function GoalDefinition() {
             const ssIncome = parseFloat(ssAnnualBenefit) || 0;
             const pensionIncome = parseFloat(pensionAnnualBenefit) || 0;
             const sustainableGross = fourPercentWithdrawal + ssIncome + pensionIncome;
+            // Estimate after-tax assuming ~15% effective rate (conservative for retirees)
+            const estimatedAfterTax = sustainableGross * 0.85;
             const goalAmount = parseFloat(targetAmount) || 0;
-            // For gross goals, compare directly. For after-tax, we can't easily compare without running tax calc
             const isGrossGoal = targetType === 'gross';
-            const exceedsSustainable = isGrossGoal && goalAmount > sustainableGross;
+
+            // Determine risk level for coloring
+            const sustainableLimit = isGrossGoal ? sustainableGross : estimatedAfterTax;
+            const utilizationRate = goalAmount / sustainableLimit;
+            const isHighRisk = utilizationRate > 1.0;
+            const isModerateRisk = utilizationRate > 0.9 && utilizationRate <= 1.0;
 
             return totalPortfolio > 0 ? (
-              <div className={`p-4 rounded-lg border ${exceedsSustainable ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
+              <div className={`p-4 rounded-lg border ${
+                isHighRisk ? 'bg-red-50 border-red-200' :
+                isModerateRisk ? 'bg-amber-50 border-amber-200' :
+                'bg-blue-50 border-blue-200'
+              }`}>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                   <div>
                     <p className="text-xs text-gray-500">Portfolio</p>
@@ -420,27 +430,37 @@ export function GoalDefinition() {
                     <p className="text-lg font-bold text-blue-600">{formatCurrency(fourPercentWithdrawal)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">+ Income = Gross</p>
-                    <p className={`text-lg font-bold ${exceedsSustainable ? 'text-red-600' : 'text-green-600'}`}>
-                      {formatCurrency(sustainableGross)}
+                    <p className="text-xs text-gray-500">
+                      {isGrossGoal ? 'Sustainable Gross' : 'Est. After-Tax'}
+                    </p>
+                    <p className={`text-lg font-bold ${
+                      isHighRisk ? 'text-red-600' :
+                      isModerateRisk ? 'text-amber-600' :
+                      'text-green-600'
+                    }`}>
+                      {formatCurrency(isGrossGoal ? sustainableGross : estimatedAfterTax)}
                     </p>
                   </div>
                 </div>
-                {exceedsSustainable && (
+                {isHighRisk && (
                   <div className="mt-3 pt-3 border-t border-red-200">
                     <p className="text-sm text-red-700">
-                      ⚠ Your {formatCurrency(goalAmount)} gross goal exceeds the {formatCurrency(sustainableGross)} sustainable gross income.
+                      ⚠ Your {formatCurrency(goalAmount)} goal exceeds the {formatCurrency(sustainableLimit)} sustainable {isGrossGoal ? 'gross' : 'after-tax'} income.
                     </p>
                   </div>
                 )}
-                {!isGrossGoal && goalAmount > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Sustainability check available on next page with actual tax calculations
-                  </p>
+                {isModerateRisk && !isHighRisk && (
+                  <div className="mt-3 pt-3 border-t border-amber-200">
+                    <p className="text-sm text-amber-700">
+                      ⚠ Your goal is near the 4% sustainable limit. Consider reviewing on the next page.
+                    </p>
+                  </div>
                 )}
-                {isGrossGoal && !exceedsSustainable && (
+                {!isHighRisk && !isModerateRisk && (
                   <p className="text-xs text-gray-500 mt-2">
-                    4% rule suggests a safe starting withdrawal rate for 30-year retirement
+                    {isGrossGoal
+                      ? '4% rule suggests a safe starting withdrawal rate for 30-year retirement'
+                      : 'After-tax estimate assumes ~15% effective tax rate'}
                   </p>
                 )}
               </div>
