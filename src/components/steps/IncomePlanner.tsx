@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { usePlan } from '../../context/PlanContext';
 import { generateStrategy, validateStrategy, explainStrategy } from '../../engine/strategyGenerator';
 import { calculateTaxBreakdown } from '../../engine/calculateTax';
+import { calculateGuardrails } from '../../engine/guardrails';
 import { WithdrawalSlider } from '../inputs/WithdrawalSlider';
 import { TaxFlowChart } from '../visualization/TaxFlowChart';
 import { ProjectionPanel } from '../visualization/ProjectionPanel';
@@ -102,7 +103,7 @@ export function IncomePlanner() {
     ? (breakdown?.afterTaxIncome ?? 0) - goal.amount
     : (breakdown?.grossIncome ?? 0) - goal.amount;
 
-  // Sustainability check (4% rule)
+  // Sustainability check (Guyton-Klinger guardrails)
   const totalPortfolio =
     (portfolio.traditional?.balance ?? 0) +
     (portfolio.taxable?.balance ?? 0) +
@@ -111,8 +112,18 @@ export function IncomePlanner() {
     localStrategy.traditionalWithdrawal +
     localStrategy.taxableWithdrawal +
     localStrategy.rothWithdrawal;
-  const withdrawalRate = totalPortfolio > 0 ? portfolioWithdrawals / totalPortfolio : 0;
-  const isSustainable = withdrawalRate <= 0.04;
+  const totalIncome =
+    portfolioWithdrawals +
+    localStrategy.socialSecurityIncome +
+    localStrategy.pensionIncome;
+  const fixedIncome =
+    localStrategy.socialSecurityIncome +
+    localStrategy.pensionIncome;
+
+  // Calculate guardrails status
+  const guardrails = calculateGuardrails(totalPortfolio, totalIncome, fixedIncome);
+  const isSustainable = guardrails.status !== 'above';
+  const isRisky = guardrails.currentRate > guardrails.initialRate && guardrails.status === 'within';
 
   return (
     <div className="space-y-6">
@@ -137,14 +148,21 @@ export function IncomePlanner() {
               <span>{goalMet ? 'Achieved' : `${formatCurrency(Math.abs(goalDiff))} ${goalDiff < 0 ? 'short' : 'over'}`}</span>
             </div>
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium
-              ${isSustainable ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
-              <span>{isSustainable ? '✓' : '⚠'}</span>
-              <span>{isSustainable ? 'Sustainable' : `${(withdrawalRate * 100).toFixed(1)}% rate`}</span>
+              ${!isSustainable ? 'bg-red-100 text-red-800' :
+                isRisky ? 'bg-amber-100 text-amber-800' :
+                'bg-emerald-100 text-emerald-800'}`}>
+              <span>{!isSustainable ? '⚠' : isRisky ? '!' : '✓'}</span>
+              <span>{(guardrails.currentRate * 100).toFixed(1)}% rate</span>
             </div>
           </div>
           {!isSustainable && (
             <p className="text-xs text-red-600 text-right max-w-xs">
-              Withdrawal rate exceeds 4% — portfolio may deplete early
+              Above upper guardrail ({(guardrails.upperGuardrail * 100).toFixed(0)}%) — high depletion risk
+            </p>
+          )}
+          {isRisky && isSustainable && (
+            <p className="text-xs text-amber-600 text-right max-w-xs">
+              Above {(guardrails.initialRate * 100).toFixed(0)}% target — monitor closely
             </p>
           )}
         </div>

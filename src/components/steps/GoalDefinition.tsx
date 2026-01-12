@@ -3,6 +3,7 @@ import { usePlan } from '../../context/PlanContext';
 import type { FilingStatus, Portfolio, IncomeGoal, StateTaxMethod, GoalFormDraft } from '../../types';
 import { FILING_STATUS_LABELS, STANDARD_DEDUCTION } from '../../constants/tax2026';
 import { formatCurrency } from '../../utils/formatters';
+import { getGuardrailsAssessment, DEFAULT_GUARDRAILS } from '../../engine/guardrails';
 
 // Default form values
 const defaultFormValues: GoalFormDraft = {
@@ -476,26 +477,32 @@ export function GoalDefinition() {
             <p className="text-xs text-gray-500 mt-1">Tax-free withdrawals</p>
           </div>
 
-          {/* Portfolio Summary */}
+          {/* Portfolio Summary with Guyton-Klinger Guardrails */}
           {(() => {
             const totalPortfolio =
               (parseFloat(traditionalBalance) || 0) +
               (parseFloat(taxableBalance) || 0) +
               (parseFloat(rothBalance) || 0);
-            const fourPercentWithdrawal = totalPortfolio * 0.04;
             const ssIncome = parseFloat(ssAnnualBenefit) || 0;
             const pensionIncome = parseFloat(pensionAnnualBenefit) || 0;
-            const sustainableGross = fourPercentWithdrawal + ssIncome + pensionIncome;
-            // Estimate after-tax assuming ~15% effective rate (conservative for retirees)
-            const estimatedAfterTax = sustainableGross * 0.85;
+            const fixedIncome = ssIncome + pensionIncome;
             const goalAmount = parseFloat(targetAmount) || 0;
             const isGrossGoal = targetType === 'gross';
 
-            // Determine risk level for coloring
-            const sustainableLimit = isGrossGoal ? sustainableGross : estimatedAfterTax;
-            const utilizationRate = goalAmount / sustainableLimit;
-            const isHighRisk = utilizationRate > 1.0;
-            const isModerateRisk = utilizationRate > 0.9 && utilizationRate <= 1.0;
+            // Use Guyton-Klinger guardrails assessment
+            const assessment = getGuardrailsAssessment(totalPortfolio, goalAmount, fixedIncome);
+
+            // Estimate after-tax values (assuming ~15% effective rate)
+            const sustainableAfterTax = assessment.sustainableIncome * 0.85;
+            const maxAfterTax = assessment.maxIncome * 0.85;
+
+            // Determine display values based on goal type
+            const sustainableDisplay = isGrossGoal ? assessment.sustainableIncome : sustainableAfterTax;
+            const maxDisplay = isGrossGoal ? assessment.maxIncome : maxAfterTax;
+
+            // Risk levels based on guardrails
+            const isHighRisk = !assessment.isSustainable;
+            const isModerateRisk = assessment.isRisky && assessment.isSustainable;
 
             return totalPortfolio > 0 ? (
               <div className={`p-4 rounded-lg border ${
@@ -503,49 +510,60 @@ export function GoalDefinition() {
                 isModerateRisk ? 'bg-amber-50 border-amber-200' :
                 'bg-blue-50 border-blue-200'
               }`}>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-center">
                   <div>
                     <p className="text-xs text-gray-500">Portfolio</p>
                     <p className="text-lg font-bold text-gray-900">{formatCurrency(totalPortfolio)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">4% Withdrawal</p>
-                    <p className="text-lg font-bold text-blue-600">{formatCurrency(fourPercentWithdrawal)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">
-                      {isGrossGoal ? 'Sustainable Gross' : 'Est. After-Tax'}
-                    </p>
+                    <p className="text-xs text-gray-500">Withdrawal Rate</p>
                     <p className={`text-lg font-bold ${
                       isHighRisk ? 'text-red-600' :
                       isModerateRisk ? 'text-amber-600' :
                       'text-green-600'
                     }`}>
-                      {formatCurrency(isGrossGoal ? sustainableGross : estimatedAfterTax)}
+                      {(assessment.withdrawalRate * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Sustainable ({(DEFAULT_GUARDRAILS.initialRate * 100).toFixed(0)}%)
+                    </p>
+                    <p className="text-lg font-bold text-blue-600">
+                      {formatCurrency(sustainableDisplay)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Max Safe ({(DEFAULT_GUARDRAILS.initialRate * (1 + DEFAULT_GUARDRAILS.upperBuffer) * 100).toFixed(0)}%)
+                    </p>
+                    <p className="text-lg font-bold text-gray-600">
+                      {formatCurrency(maxDisplay)}
                     </p>
                   </div>
                 </div>
-                {isHighRisk && (
-                  <div className="mt-3 pt-3 border-t border-red-200">
+
+                {/* Guardrail Status Message */}
+                <div className={`mt-3 pt-3 border-t ${
+                  isHighRisk ? 'border-red-200' :
+                  isModerateRisk ? 'border-amber-200' :
+                  'border-blue-200'
+                }`}>
+                  {isHighRisk ? (
                     <p className="text-sm text-red-700">
-                      ⚠ Your {formatCurrency(goalAmount)} goal exceeds the {formatCurrency(sustainableLimit)} sustainable {isGrossGoal ? 'gross' : 'after-tax'} income.
+                      ⚠ {assessment.message} Consider reducing your target or adjusting your strategy.
                     </p>
-                  </div>
-                )}
-                {isModerateRisk && !isHighRisk && (
-                  <div className="mt-3 pt-3 border-t border-amber-200">
+                  ) : isModerateRisk ? (
                     <p className="text-sm text-amber-700">
-                      ⚠ Your goal is near the 4% sustainable limit. Consider reviewing on the next page.
+                      ⚠ {assessment.message}
                     </p>
-                  </div>
-                )}
-                {!isHighRisk && !isModerateRisk && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    {isGrossGoal
-                      ? '4% rule suggests a safe starting withdrawal rate for 30-year retirement'
-                      : 'After-tax estimate assumes ~15% effective tax rate'}
-                  </p>
-                )}
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      Guyton-Klinger guardrails: 5% initial rate with ±20% adjustment triggers.
+                      {!isGrossGoal && ' After-tax estimates assume ~15% effective rate.'}
+                    </p>
+                  )}
+                </div>
               </div>
             ) : null;
           })()}
